@@ -55,9 +55,15 @@ module.exports = class LinkedList{
             //ao findar de chamar o prioridade, reseta o chamado para 0, com isso volta a chamar o normal
         }
         else{
-            console.log("chamando normal")
-            this.chamado++
-            this.chamadoTotal++
+            if(this.count>this.chamadoTotal){
+                
+                console.log("chamando normal")
+                this.chamado++
+                this.chamadoTotal++
+            }
+            else{
+                console.log("Não tem mais senhas")
+            }
             //lembrando que ele deve adionar um ao chamado toda vez q terminar de chamar uma senha 
         }
     }

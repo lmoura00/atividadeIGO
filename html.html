@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Fila de Atendimento Hospitalar</title>
+</head>
+<body>
+  <h1>Fila de Atendimento Hospitalar</h1>
+  
+  <button onclick="gerarSenhaNormal()">Gerar Senha Normal</button>
+  <button onclick="gerarSenhaPrioritaria()">Gerar Senha Prioritária</button>
+  <button onclick="atenderProximoPaciente()">Atender Próximo Paciente</button>
+  <input type="number" id="senhaChamada" placeholder="Senha a chamar">
+  <button onclick="chamarSenha()">Chamar Senha Específica</button>
+  
+  <ul id="filaAtendimento"></ul>
+
+  <script>
+    class Paciente {
+      constructor(senha, prioridade) {
+        this.senha = senha;
+        this.prioridade = prioridade;
+        this.proximo = null;
+      }
+    }
+
+    class FilaAtendimento {
+      constructor() {
+        this.inicio = null;
+        this.fim = null;
+        this.prioritarioPendente = 0;
+      }
+
+      adicionarPaciente(senha, prioridade) {
+        const novoPaciente = new Paciente(senha, prioridade);
+
+        if (!this.inicio) {
+          this.inicio = novoPaciente;
+          this.fim = novoPaciente;
+        } else {
+          this.fim.proximo = novoPaciente;
+          this.fim = novoPaciente;
+        }
+
+        if (prioridade === 'prioritaria') {
+          this.prioritarioPendente++;
+        }
+      }
+
+      atenderProximoPaciente() {
+        if (!this.inicio) {
+          alert("A fila de atendimento está vazia.");
+          return;
+        }
+
+        if (this.prioritarioPendente >= 2) {
+          let i = 0;
+          let atual = this.inicio;
+          let anterior = null;
+          while (i < 2 && atual && atual.prioridade === 'normal') {
+            anterior = atual;
+            atual = atual.proximo;
+            i++;
+          }
+
+          if (anterior) {
+            anterior.proximo = atual.proximo;
+          } else {
+            this.inicio = atual.proximo;
+          }
+
+          if (atual === this.fim) {
+            this.fim = anterior;
+          }
+
+          this.prioritarioPendente -= 2;
+        } else {
+          let pacienteAtendido = this.inicio;
+          this.inicio = this.inicio.proximo;
+          if (!this.inicio) {
+            this.fim = null;
+          }
+
+          alert(`Atendendo o paciente com senha: ${pacienteAtendido.senha}`);
+        }
+
+        atualizarFila();
+      }
+
+      chamarSenha(senha) {
+        let atual = this.inicio;
+        let anterior = null;
+        while (atual) {
+          if (atual.senha === senha) {
+            if (anterior) {
+              anterior.proximo = atual.proximo;
+            } else {
+              this.inicio = atual.proximo;
+            }
+
+            if (atual === this.fim) {
+              this.fim = anterior;
+            }
+
+            alert(`Atendendo o paciente com senha: ${atual.senha}`);
+            atualizarFila();
+            return;
+          }
+
+          anterior = atual;
+          atual = atual.proximo;
+        }
+
+        alert(`Senha ${senha} não encontrada na fila.`);
+      }
+    }
+
+    const filaAtendimento = new FilaAtendimento();
+    let senhaNormal = 1;
+    let senhaPrioritaria = 1;
+
+    function gerarSenhaNormal() {
+      filaAtendimento.adicionarPaciente(senhaNormal, 'normal');
+      senhaNormal++;
+      atualizarFila();
+    }
+
+    function gerarSenhaPrioritaria() {
+      filaAtendimento.adicionarPaciente(senhaPrioritaria, 'prioritaria');
+      senhaPrioritaria++;
+      atualizarFila();
+    }
+
+    function atenderProximoPaciente() {
+      filaAtendimento.atenderProximoPaciente();
+    }
+
+    function chamarSenha() {
+      const senha = parseInt(document.getElementById("senhaChamada").value);
+      if (!isNaN(senha)) {
+        filaAtendimento.chamarSenha(senha);
+      } else {
+        alert("Por favor, insira uma senha válida.");
+      }
+    }
+
+    function atualizarFila() {
+      const filaElement = document.getElementById("filaAtendimento");
+      filaElement.innerHTML = "";
+      let atual = filaAtendimento.inicio;
+      while (atual) {
+        const listItem = document.createElement("li");
+        listItem.textContent = `Senha: ${atual.senha} (${atual.prioridade})`;
+        filaElement.appendChild(listItem);
+        atual = atual.proximo;
+      }
+    }
+  </script>
+</body>
+</html>
