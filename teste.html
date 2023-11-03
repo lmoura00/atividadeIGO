@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Atendimento Hospitalar</title>
+</head>
+<body>
+  <h1>Atendimento Hospitalar</h1>
+  <button id="generateNormalTicket">Gerar Senha Normal</button>
+  <button id="generatePriorityTicket">Gerar Senha Prioritária</button>
+  <button id="callNextPatient">Chamar Próximo Paciente</button>
+  <div id="normalQueue">Senhas Normais:</div>
+  <div id="priorityQueue">Senhas Prioritárias:</div>
+
+  <script>
+    class Node {
+      constructor(data) {
+        this.data = data;
+        this.next = null;
+      }
+    }
+
+    class Queue {
+      constructor() {
+        this.head = null;
+        this.tail = null;
+      }
+
+      enqueue(data) {
+        const newNode = new Node(data);
+        if (this.isEmpty()) {
+          this.head = newNode;
+          this.tail = newNode;
+        } else {
+          this.tail.next = newNode;
+          this.tail = newNode;
+        }
+      }
+
+      dequeue() {
+        if (this.isEmpty()) {
+          return null;
+        }
+        const data = this.head.data;
+        this.head = this.head.next;
+        if (!this.head) {
+          this.tail = null;
+        }
+        return data;
+      }
+
+      isEmpty() {
+        return this.head === null;
+      }
+    }
+
+    const normalQueue = new Queue();
+    const priorityQueue = new Queue();
+
+    document.getElementById("generateNormalTicket").addEventListener("click", () => {
+      const ticket = `N${Date.now()}`;
+      normalQueue.enqueue(ticket);
+      document.getElementById("normalQueue").innerHTML += `Senha Normal: ${ticket}<br>`;
+    });
+
+    document.getElementById("generatePriorityTicket").addEventListener("click", () => {
+      const ticket = `P${Date.now()}`;
+      priorityQueue.enqueue(ticket);
+      document.getElementById("priorityQueue").innerHTML += `Senha Prioritária: ${ticket}<br>`;
+    });
+
+    document.getElementById("callNextPatient").addEventListener("click", () => {
+      for (let i = 0; i < 2; i++) {
+        const nextNormalPatient = normalQueue.dequeue();
+        if (nextNormalPatient) {
+          document.getElementById("normalQueue").innerHTML = document.getElementById("normalQueue").innerHTML.split("<br>").slice(1).join("<br>");
+          alert(`Atendendo paciente normal: ${nextNormalPatient}`);
+        }
+      }
+
+      const nextPriorityPatient = priorityQueue.dequeue();
+      if (nextPriorityPatient) {
+        document.getElementById("priorityQueue").innerHTML = document.getElementById("priorityQueue").innerHTML.split("<br>").slice(1).join("<br>");
+        alert(`Atendendo paciente prioritário: ${nextPriorityPatient}`);
+      }
+    });
+  </script>
+</body>
+</html>
